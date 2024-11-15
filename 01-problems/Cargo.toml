@@ -1,0 +1,9 @@
+[package]
+name = "problems"
+edition = "2021"
+publish = false
+
+[dependencies]
+# Disable default features for faster compile times. We don't use any of these features anyways, so
+# it's fine. :)
+bevy = { version = "0.14.2", default-features = false }

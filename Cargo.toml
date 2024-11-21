@@ -1,3 +1,9 @@
 [workspace]
 resolver = "2"
-members = ["01-problems", "02-rustc-recreated", "03-callbacks"]
+members = [
+    "01-problems",
+    "02-rustc-recreated",
+    "03-callbacks",
+    "04-empty-lint",
+    "05-insert-event-resource",
+]

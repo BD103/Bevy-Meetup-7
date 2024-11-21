@@ -1,0 +1,8 @@
+[package]
+name = "empty-lint"
+edition = "2021"
+publish = false
+
+[package.metadata.rust-analyzer]
+# Enables rust-analyzer support for `rustc` crates.
+rustc_private = true

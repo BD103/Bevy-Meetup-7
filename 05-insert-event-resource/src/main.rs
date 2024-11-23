@@ -69,7 +69,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
                 // `rustc_middle::ty::Ty`. The HIR representation is more of a name than anything
                 // else, while the middle's representation has actual type information. For more
                 // info, check out <https://rustc-dev-guide.rust-lang.org/ty.html#rustc_hirty-vs-tyty>.
-                // 
+                //
                 // In this case, we convert an HIR `Ty` to a middle `Ty` so we can figure out if it
                 // is `Events<T>` or not.
                 let resource_ty = cx.typeck_results().node_type(resource_hir_ty.hir_id);
@@ -93,6 +93,14 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
 }
 
 fn main() -> Result<(), ErrorGuaranteed> {
-    let args: Vec<String> = std::env::args().collect();
+    // Unlike previous examples, this is no longer meant to be used as `rustc` directly. Instead, it
+    // is designed to be a driver that can be called by Cargo. Cargo calls drivers in the format or
+    // `path/to/driver path/to/original/rustc --addition --args`. We skip the first argument, so
+    // `RunCompiler` just sees the path to `rustc` and not our driver.
+    //
+    // This also means that if you wish to run this executable manually, you need to call it as
+    // `cargo run -- rustc --actual --arguments`.
+    let args: Vec<String> = std::env::args().skip(1).collect();
+
     rustc_driver::RunCompiler::new(&args, &mut LinterCallbacks).run()
 }

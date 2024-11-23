@@ -10,6 +10,9 @@ version = "=0.1.84"
 git = "https://github.com/rust-lang/rust-clippy"
 rev = "81dceed8baf324960ea05e9079b749305b16a7cc"
 
+[dev-dependencies]
+bevy = { version = "0.14.2", default-features = false }
+
 [package.metadata.rust-analyzer]
 # Enables rust-analyzer support for `rustc` crates.
 rustc_private = true

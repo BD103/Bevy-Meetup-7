@@ -612,6 +612,7 @@ dependencies = [
 name = "insert-event-resource"
 version = "0.0.0"
 dependencies = [
+ "bevy",
  "clippy_utils",
 ]
 

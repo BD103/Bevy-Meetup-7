@@ -41,28 +41,48 @@ declare_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
-        if let ExprKind::MethodCall(path, src, _, method_span) = expr.kind {
-            let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
+        // There many different kinds of expressions. (See `ExprKind`!) In this case, we're looking
+        // for method calls in the form of `receiver.path()`.
+        if let ExprKind::MethodCall(path, receiver, _, method_span) = expr.kind {
+            // Find the receiver type. This may be `App`, which is what we want, or something else.
+            // We call `peel_refs()` to unwrap any references, getting the underlying type. (For
+            // example, `&&App` becomes `App`.)
+            let receiver_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
 
-            if !match_type(cx, src_ty, &["bevy_app", "app", "App"]) {
+            // Check if the receiver type is a Bevy `App`. If it's not, exit early.
+            if !match_type(cx, receiver_ty, &["bevy_app", "app", "App"]) {
                 return;
             }
 
+            // Check if the method name is `init_resource()`, else exit early.
             if path.ident.name != sym!(init_resource) {
                 return;
             }
 
+            // Pull out the generic argument `T` from `app.init_resource::<T>()`.
             if let Some(&GenericArgs {
                 args: &[GenericArg::Type(resource_hir_ty)],
                 ..
             }) = path.args
             {
+                // There are two relevant representations of types: `rustc_hir::Ty` and
+                // `rustc_middle::ty::Ty`. The HIR representation is more of a name than anything
+                // else, while the middle's representation has actual type information. For more
+                // info, check out <https://rustc-dev-guide.rust-lang.org/ty.html#rustc_hirty-vs-tyty>.
+                // 
+                // In this case, we convert an HIR `Ty` to a middle `Ty` so we can figure out if it
+                // is `Events<T>` or not.
                 let resource_ty = cx.typeck_results().node_type(resource_hir_ty.hir_id);
 
                 if match_type(cx, resource_ty, &["bevy_ecs", "event", "Events"]) {
+                    // Emit the lint! The compiler figures out whether this should be displayed to
+                    // the user, depending on whether it is `#[allow(...)]`'d or not.
                     span_lint(
                         cx,
                         INSERT_EVENT_RESOURCE,
+                        // The span is a range of bytes in the source code. By passing the span of
+                        // the method call, we can attach our lint warning to that specific line of
+                        // code in the diagnostics.
                         method_span,
                         "called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
                     );

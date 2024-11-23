@@ -3,6 +3,8 @@ name = "insert-event-resource"
 edition = "2021"
 publish = false
 
+# A bunch of linting utilities originally developed for Clippy. We use them too, because they can be
+# a lot nicer than raw `rustc` APIs!.
 [dependencies.clippy_utils]
 version = "=0.1.84"
 git = "https://github.com/rust-lang/rust-clippy"

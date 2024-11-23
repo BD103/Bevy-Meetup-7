@@ -1,3 +1,6 @@
 [toolchain]
+# The compiler's internal APIs may have breaking changes at any moment. Because of this, we usually
+# pin a specific nightly version to ensure our code works for everyone.
 channel = "nightly-2024-11-14"
+# In order to use `rustc` crates, we must first install the `rustc-dev` component. 
 components = ["rustc-dev", "llvm-tools-preview"]
